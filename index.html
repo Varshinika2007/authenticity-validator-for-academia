@@ -125,13 +125,19 @@
         }
 
         .sidebar {
-            width: 260px;
+            width: 280px;
             background-color: #0f172a;
             color: white;
-            padding: 2rem 1.25rem;
+            padding: 2rem 1rem;
             display: flex;
             flex-direction: column;
-            gap: 2rem;
+            justify-content: space-between;
+        }
+
+        .sidebar-top {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
         }
 
         .sidebar-logo h2 {
@@ -140,28 +146,44 @@
             background: linear-gradient(to right, #3b82f6, #60a5fa);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            padding-left: 0.75rem;
         }
 
         .nav-menu {
             list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.35rem;
         }
 
         .nav-menu li a {
             color: #94a3b8;
             text-decoration: none;
-            padding: 0.8rem 1rem;
+            padding: 0.75rem 0.85rem;
             border-radius: 8px;
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
             font-weight: 500;
+            font-size: 0.95rem;
             transition: all 0.2s;
+            cursor: pointer;
         }
 
         .nav-menu li.active a, .nav-menu li a:hover {
             background-color: #1e293b;
             color: white;
+        }
+
+        /* Distinctive styling for Logout item in navigation */
+        .nav-menu li.logout-item a {
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            margin-top: 0.5rem;
+        }
+        .nav-menu li.logout-item a:hover {
+            background-color: #451a1a;
+            color: #ffffff;
         }
 
         .main-workspace {
@@ -181,45 +203,28 @@
             padding: 0 2rem;
         }
 
-        .header-right-controls {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
-
-        /* Distinct Logout Action Item */
-        .logout-btn {
-            background-color: transparent;
-            color: var(--danger);
-            border: 1px solid #fee2e2;
-            padding: 0.45rem 1rem;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .logout-btn:hover {
-            background-color: #fef2f2;
-            border-color: #fca5a5;
-        }
-
         .content-scrollbox {
             flex: 1;
             padding: 2rem;
             overflow-y: auto;
-            display: flex;
+        }
+
+        .view-section {
+            display: none;
             flex-direction: column;
             gap: 2rem;
         }
 
-        /* 3. Drag and Drop File Selection Area */
+        .view-section.active {
+            display: flex;
+        }
+
+        /* 3. Dropzone File Input Elements */
         .dropzone-container {
             border: 3px dashed #cbd5e1;
             background-color: var(--surface);
             border-radius: 12px;
-            padding: 5rem 2rem;
+            padding: 4rem 2rem;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
@@ -230,7 +235,7 @@
             background-color: #f8fafc;
         }
 
-        /* 4. Processing Progress Bar Elements */
+        /* 4. Progress Loading Layout Elements */
         .analysis-progress-card {
             display: none;
             background: var(--surface);
@@ -261,9 +266,9 @@
             transition: width 0.1s linear;
         }
 
-        /* 5. Split Analysis Results Output Grid Layout */
+        /* Grid Framework Structures */
         .analytics-dashboard-grid {
-            display: none;
+            display: grid;
             grid-template-columns: 1.1fr 1fr;
             gap: 1.5rem;
             align-items: start;
@@ -288,11 +293,10 @@
             padding-bottom: 0.75rem;
         }
 
-        /* Interactive Map Preview Viewport Container */
         .document-viewport {
             background: #475569;
             border-radius: 8px;
-            height: 480px;
+            height: 440px;
             display: flex;
             justify-content: center;
             align-items: start;
@@ -303,15 +307,14 @@
         .manuscript-mock-page {
             background: white;
             width: 100%;
-            min-height: 550px;
+            min-height: 520px;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-            padding: 2.5rem;
+            padding: 2.25rem;
             color: #334155;
             font-size: 0.9rem;
             line-height: 1.6;
         }
 
-        /* Score Gauge UI Styling */
         .score-row {
             display: flex;
             align-items: center;
@@ -328,7 +331,6 @@
             color: white;
         }
 
-        /* Meta List Structure elements */
         .metric-list-group {
             list-style: none;
             display: flex;
@@ -354,7 +356,6 @@
             color: #1e293b;
         }
 
-        /* Interactive Dynamic Highlight Tags */
         .keyword-badge-box {
             display: flex;
             flex-wrap: wrap;
@@ -372,7 +373,6 @@
             font-weight: 600;
         }
 
-        /* Text area for automated generation summaries */
         .summary-block {
             background-color: #f8fafc;
             border-left: 4px solid var(--primary-light);
@@ -384,7 +384,7 @@
             font-style: italic;
         }
 
-        /* 6. Institutional PDF Report Template Structure (Invisible on Dashboard) */
+        /* 6. Hidden Institutional PDF Template Structure */
         #academic-report-template {
             display: none;
             padding: 50px;
@@ -450,101 +450,157 @@
     </div>
 
     <div id="app-container">
+        
         <aside class="sidebar">
-            <div class="sidebar-logo">
-                <h2>AVA CORE PRO</h2>
+            <div class="sidebar-top">
+                <div class="sidebar-logo">
+                    <h2>AVA CORE PRO</h2>
+                </div>
+                <ul class="nav-menu">
+                    <li class="active" onclick="switchView('dashboard', this)"><a>📊 Analysis Dashboard</a></li>
+                    <li onclick="switchView('upload', this)"><a>📄 Document Upload & Preview</a></li>
+                    <li onclick="switchView('authenticity', this)"><a>🤖 Authenticity Analysis</a></li>
+                    <li onclick="switchView('citation', this)"><a>📚 Citation Verification</a></li>
+                    <li onclick="switchView('reference', this)"><a>🔗 Reference Validation</a></li>
+                    <li onclick="switchView('report', this)"><a>📑 Report Generation</a></li>
+                    <li onclick="switchView('about', this)"><a>ℹ️ About Project</a></li>
+                    <li class="logout-item" onclick="terminateSession()"><a>🚪 Log Out</a></li>
+                </ul>
             </div>
-            <ul class="nav-menu">
-                <li class="active"><a href="#">Analysis Dashboard</a></li>
-                <li><a href="#">System Reference Database</a></li>
-                <li><a href="#">Validation Audit Logs</a></li>
-            </ul>
         </aside>
 
         <main class="main-workspace">
             <header class="header-bar">
                 <span style="font-weight: 600; color: var(--text-muted); font-size: 0.9rem;">🟢 ENCRYPTED NODE CONNECTION ACTIVE</span>
-                <div class="header-right-controls">
-                    <span id="user-display" style="font-weight: 700; color: var(--primary);">Operator: Admin</span>
-                    <button class="logout-btn" onclick="terminateSession()">Log Out</button>
-                </div>
+                <span id="user-display" style="font-weight: 700; color: var(--primary); padding-right: 2rem;">Operator: Admin</span>
             </header>
 
             <div class="content-scrollbox">
-                <div class="dropzone-container" id="drop-zone" onclick="document.getElementById('file-input').click()">
-                    <input type="file" id="file-input" style="display: none;" onchange="executeDocumentAnalysis(event)">
-                    <p style="font-size: 1.35rem; font-weight: 700; color: #334155; margin-bottom: 0.5rem;">Select Academic Asset for Validation</p>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">Accepts verified PDF, DOCX, and TXT files</p>
-                </div>
-
-                <div class="analysis-progress-card" id="progress-container">
-                    <div class="progress-meta">
-                        <span id="progress-status" style="color: var(--primary-light);">Parsing manuscript structures...</span>
-                        <span id="progress-percent">0%</span>
-                    </div>
-                    <div class="bar-background">
-                        <div class="bar-filler" id="progress-fill"></div>
-                    </div>
-                </div>
-
-                <div class="analytics-dashboard-grid" id="results-grid">
-                    
+                
+                <div id="view-dashboard" class="view-section active">
                     <div class="card">
-                        <div class="card-title">Interactive Document Layout Map</div>
+                        <div class="card-title">📊 Analysis Dashboard Hub</div>
+                        <p style="color: var(--text-muted); line-height: 1.6;">Welcome to the main console view. Upload an academic asset inside the <b>Document Upload & Preview</b> panel to distribute analytics data across all integrated scanning subsystems below.</p>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 0.5rem;">
+                            <div style="background: #f8fafc; padding: 1.25rem; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center;">
+                                <h4 style="color: var(--primary); font-size: 1.5rem; margin-bottom: 0.25rem;">Active</h4>
+                                <p style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">System Core Scan Nodes</p>
+                            </div>
+                            <div style="background: #f8fafc; padding: 1.25rem; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center;">
+                                <h4 style="color: var(--success); font-size: 1.5rem; margin-bottom: 0.25rem;">SECURE</h4>
+                                <p style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Validation Link Isolation</p>
+                            </div>
+                            <div style="background: #f8fafc; padding: 1.25rem; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center;">
+                                <h4 style="color: var(--primary-light); font-size: 1.5rem; margin-bottom: 0.25rem;">v1.0</h4>
+                                <p style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Engine Matrix Firmware</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-upload" class="view-section">
+                    <div class="dropzone-container" id="drop-zone" onclick="document.getElementById('file-input').click()">
+                        <input type="file" id="file-input" style="display: none;" onchange="executeDocumentAnalysis(event)">
+                        <p style="font-size: 1.35rem; font-weight: 700; color: #334155; margin-bottom: 0.5rem;">📄 Drag or Click to Upload Academic Asset</p>
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">Accepts verified PDF, DOCX, and TXT configurations</p>
+                    </div>
+
+                    <div class="analysis-progress-card" id="progress-container">
+                        <div class="progress-meta">
+                            <span id="progress-status" style="color: var(--primary-light);">Parsing manuscript structures...</span>
+                            <span id="progress-percent">0%</span>
+                        </div>
+                        <div class="bar-background">
+                            <div class="bar-filler" id="progress-fill"></div>
+                        </div>
+                    </div>
+
+                    <div class="card" id="preview-placeholder-box">
+                        <div class="card-title">Interactive Document Layout Map Preview</div>
                         <div class="document-viewport">
                             <div class="manuscript-mock-page">
                                 <h3 style="text-align: center; margin-bottom: 1.5rem; font-size: 1.1rem; border-bottom: 2px solid #333; padding-bottom: 5px;">MANUSCRIPT PREVIEW CONTENT</h3>
-                                <p id="pdf-body-text" style="text-align: justify;">Extracting documentation string arrays from system stream buffers...</p>
+                                <p id="pdf-body-text" style="text-align: justify; color: var(--text-muted);">No file currently uploaded. Please mount a target file inside the selector box above to compile data.</p>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="card">
-                        <div class="card-title">Validation Engine Parameters</div>
-                        
-                        <div class="score-row">
-                            <span style="font-weight: 700; color: #475569;">Authenticity Integrity Index</span>
-                            <span class="score-pill" id="res-score" style="background-color: var(--success);">98% Match</span>
-                        </div>
-
-                        <ul class="metric-list-group">
-                            <li>
-                                <span class="label-text">File Identifier</span>
-                                <span class="value-text" id="res-filename">-</span>
-                            </li>
-                            <li>
-                                <span class="label-text">File Volume Footprint</span>
-                                <span class="value-text" id="res-filesize">-</span>
-                            </li>
-                            <li>
-                                <span class="label-text">Academic Subject Category</span>
-                                <span class="value-text" id="res-domain" style="color: var(--primary-light);">-</span>
-                            </li>
-                            <li>
-                                <span class="label-text">Reference Citation Status</span>
-                                <span class="value-text" id="res-references" style="color: var(--success);">Valid Cross-References Found</span>
-                            </li>
-                        </ul>
-
-                        <div>
-                            <span style="font-weight: 700; font-size: 0.9rem; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Extracted Core Concept Keywords</span>
-                            <div class="keyword-badge-box" id="res-keywords">
+                <div id="view-authenticity" class="view-section">
+                    <div class="analytics-dashboard-grid">
+                        <div class="card" style="grid-column: span 2;">
+                            <div class="card-title">🤖 Structural Authenticity Parameters</div>
+                            <div class="score-row">
+                                <span style="font-weight: 700; color: #475569;">Authenticity Integrity Index Match Rating</span>
+                                <span class="score-pill" id="res-score" style="background-color: #64748b;">Awaiting Data...</span>
+                            </div>
+                            <ul class="metric-list-group">
+                                <li>
+                                    <span class="label-text">File Identifier String</span>
+                                    <span class="value-text" id="res-filename">No File Uploaded</span>
+                                </li>
+                                <li>
+                                    <span class="label-text">Data Allocation Size Footprint</span>
+                                    <span class="value-text" id="res-filesize">-</span>
+                                </li>
+                                <li>
+                                    <span class="label-text">Domain Taxonomy Classification</span>
+                                    <span class="value-text" id="res-domain" style="color: var(--primary-light);">-</span>
+                                </li>
+                            </ul>
+                            <div>
+                                <span style="font-weight: 700; font-size: 0.9rem; color: #475569; text-transform: uppercase;">Extracted Logic Concept Badges</span>
+                                <div class="keyword-badge-box" id="res-keywords">
+                                    <span style="color: var(--text-muted); font-size: 0.9rem; font-style: italic;">No tags compiled.</span>
                                 </div>
-                        </div>
-
-                        <div>
-                            <span style="font-weight: 700; font-size: 0.9rem; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 0.5rem;">Automated Abstractive Summary</span>
-                            <div class="summary-block" id="res-summary">
-                                Processing full document arrays to extrapolate context summary metrics...
                             </div>
                         </div>
+                    </div>
+                </div>
 
-                        <button class="btn" style="background-color: var(--success); margin-top: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;" onclick="generateProfessionalReport()">
-                            📥 Export Professional Verification Report
+                <div id="view-citation" class="view-section">
+                    <div class="card">
+                        <div class="card-title">📚 Citation Verification Index</div>
+                        <p style="color: var(--text-muted); line-height: 1.6;">Automated algorithmic scanning models parse the asset's text string structures to isolate inline quote allocations and cross-check matching database entities.</p>
+                        <div style="background: #f8fafc; border-left: 4px solid var(--success); padding: 1rem; border-radius: 0 8px 8px 0;">
+                            <span style="font-weight: 700; display: block; color: #1e293b; margin-bottom: 0.25rem;">Citation Audit Node Signature:</span>
+                            <span id="res-references" style="font-weight: 600; color: var(--text-muted);">Awaiting source validation matrix ingestion execution.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-reference" class="view-section">
+                    <div class="card">
+                        <div class="card-title">🔗 Contextual Reference & Summary Alignment</div>
+                        <p style="color: var(--text-muted); line-height: 1.6;">Deep structural indexing extrapolates key paragraph contexts to deliver verified abstract records:</p>
+                        <div class="summary-block" id="res-summary">
+                            System resting in idling buffer block configuration setup. Run a document verification pass to structure contextual report fields...
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-report" class="view-section">
+                    <div class="card">
+                        <div class="card-title">📑 Report Generation Console Engine</div>
+                        <p style="color: var(--text-muted); line-height: 1.6;">Convert compiled processing metrics into a publication-quality institutional report certificate document structure layout template format instantly.</p>
+                        <button class="btn" style="background-color: var(--success); max-width: 320px; display: flex; align-items: center; justify-content: center; gap: 0.5rem;" onclick="generateProfessionalReport()">
+                            📥 Export Official Verification Certificate PDF
                         </button>
                     </div>
-
                 </div>
+
+                <div id="view-about" class="view-section">
+                    <div class="card">
+                        <div class="card-title">ℹ️ About AVA Core Engine Project</div>
+                        <p style="line-height: 1.7; color: #334155;">
+                            The <b>Authenticity Validator for Academia (AVA Core Engine)</b> represents a fully isolated heuristic layout system cluster designed to audit academic documentation architectures. By leveraging strict metadata processing blocks, text array routers, and dynamic export formatting pipelines, AVA equips researchers and operators with bulletproof authenticity checks.
+                        </p>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; border-top: 1px solid #e2e8f0; padding-top: 1rem;">
+                            System Interface Engine Cluster Platform • Built Secure & Compliant
+                        </p>
+                    </div>
+                </div>
+
             </div>
         </main>
     </div>
@@ -595,26 +651,30 @@
         <div id="rep-summary" style="font-size: 12.5px; line-height: 1.6; padding: 15px; background-color: #f8fafc; border-left: 3px solid #1e3a8a; font-style: italic; color: #334155;">
             -
         </div>
-
-        <div style="margin-top: 60px; border-top: 1px solid #cbd5e1; padding-top: 15px; display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <p style="font-size: 11px; font-weight: bold; color: #1e3a8a;">AVA ENGINE PLATFORM V1.0</p>
-                <p style="font-size: 10px; color: #64748b;">Secure Verification Node Reference: #AVA-SEC-9981X</p>
-            </div>
-            <div style="text-align: right;">
-                <p style="font-size: 11px; font-weight: bold; color: #475569;">SYSTEM INTEGRITY STATUS</p>
-                <p style="font-size: 11px; font-weight: 800; color: #10b981;">VERIFIED & SECURE</p>
-            </div>
-        </div>
     </div>
 
     <script>
+        // Feature tab switcher logic controller routing
+        function switchView(viewId, listElement) {
+            // Remove active style from all navigation listings items
+            const currentTabs = document.querySelectorAll('.nav-menu li');
+            currentTabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Add focus class back onto current selected item click target
+            listElement.classList.add('active');
+
+            // Toggle viewing target screens loops panels visibility configurations
+            const interfaceViews = document.querySelectorAll('.view-section');
+            interfaceViews.forEach(v => v.classList.remove('active'));
+
+            document.getElementById('view-' + viewId).classList.add('active');
+        }
+
         function authenticateUser(event) {
             event.preventDefault();
             const operatorId = document.getElementById('username').value;
             document.getElementById('user-display').innerText = "Operator: " + operatorId;
             
-            // Seamless fading transitions between layers
             document.getElementById('auth-screen').style.opacity = '0';
             setTimeout(() => {
                 document.getElementById('auth-screen').style.display = 'none';
@@ -622,18 +682,34 @@
             }, 300);
         }
 
-        // Clean logout interface runtime action logic
+        // FEATURE 8 FUNCTIONAL BLOCK: Session Terminate & Cleanup Action Route
         function terminateSession() {
-            // Reset input values fields
+            // Flush authentication input fields
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
             document.getElementById('file-input').value = '';
             
-            // Clean interface fields back out 
-            document.getElementById('results-grid').style.display = 'none';
-            document.getElementById('drop-zone').style.display = 'block';
+            // Revert analysis modules content logs back into zero states placeholders strings
+            document.getElementById('pdf-body-text').innerText = "No file currently uploaded. Please mount a target file inside the selector box above to compile data.";
+            document.getElementById('res-filename').innerText = "No File Uploaded";
+            document.getElementById('res-filesize').innerText = "-";
+            document.getElementById('res-domain').innerText = "-";
+            document.getElementById('res-score').innerText = "Awaiting Data...";
+            document.getElementById('res-score').style.backgroundColor = "#64748b";
+            document.getElementById('res-keywords').innerHTML = `<span style="color: var(--text-muted); font-size: 0.9rem; font-style: italic;">No tags compiled.</span>`;
+            document.getElementById('res-references').innerText = "Awaiting source validation matrix ingestion execution.";
+            document.getElementById('res-summary').innerText = "System resting in idling buffer block configuration setup. Run a document verification pass to structure contextual report fields...";
+
+            // Reset active menu back onto first main index element block loop
+            const menuItems = document.querySelectorAll('.nav-menu li');
+            menuItems.forEach(item => item.classList.remove('active'));
+            menuItems[0].classList.add('active');
             
-            // Run UI Layer transitions backwards
+            const contentViews = document.querySelectorAll('.view-section');
+            contentViews.forEach(view => view.classList.remove('active'));
+            document.getElementById('view-dashboard').classList.add('active');
+
+            // Execute UI translation swaps backwards safely
             document.getElementById('auth-screen').style.display = 'flex';
             setTimeout(() => {
                 document.getElementById('auth-screen').style.opacity = '1';
@@ -644,10 +720,6 @@
         function executeDocumentAnalysis(event) {
             const uploadedFile = event.target.files[0];
             if (!uploadedFile) return;
-
-            // Reset dashboard state interfaces 
-            document.getElementById('drop-zone').style.display = 'none';
-            document.getElementById('results-grid').style.display = 'none';
             
             const layoutProgressBox = document.getElementById('progress-container');
             const fillerBar = document.getElementById('progress-fill');
@@ -679,7 +751,7 @@
                     layoutProgressBox.style.display = 'none';
                     populateVerificationMetrics(uploadedFile);
                 }
-            }, 40);
+            }, 300); // Steady execution metrics runtime pace simulator 
         }
 
         function populateVerificationMetrics(file) {
@@ -687,23 +759,22 @@
             document.getElementById('res-filesize').innerText = (file.size / 1024).toFixed(2) + " KB";
             
             const lowerFilename = file.name.toLowerCase();
-            
             const keywordBox = document.getElementById('res-keywords');
             const summaryBox = document.getElementById('res-summary');
             const bodyPreviewText = document.getElementById('pdf-body-text');
             const domainText = document.getElementById('res-domain');
             const scoreText = document.getElementById('res-score');
+            const citationText = document.getElementById('res-references');
             
-            keywordBox.innerHTML = ''; // Wipe previous loops out
+            keywordBox.innerHTML = '';
+            citationText.innerText = "PASSED - Cross-References Log Indexed and Matching Global Identifiers";
+            citationText.style.color = "var(--success)";
 
-            // Smart parsing routers to load proper context based on strings
             if (lowerFilename.includes('web') || lowerFilename.includes('html') || lowerFilename.includes('css')) {
                 domainText.innerText = "Web Technologies & Systems";
                 scoreText.innerText = "96% Authenticity Match";
                 scoreText.style.backgroundColor = "var(--success)";
-                
                 bodyPreviewText.innerText = "Abstract — The rapid advancement of client-side architecture demands highly optimized DOM handling strategies. This paper analyses asynchronous style pipeline configurations, layout rendering trees, and the application of responsive component models within heavy framework applications...";
-                
                 summaryBox.innerText = "This document explores advanced architectural strategies for front-end development, specifically examining layout render optimization pipelines, DOM construction benchmarks, and responsive layout performance structures inside high-load modern client nodes.";
                 
                 const tags = ["DOM Architecture", "CSS Tree Compilation", "Rendering Pipelines", "Asynchronous States"];
@@ -713,9 +784,7 @@
                 domainText.innerText = "Data Engineering & Intelligence";
                 scoreText.innerText = "99% Authenticity Match";
                 scoreText.style.backgroundColor = "var(--success)";
-                
                 bodyPreviewText.innerText = "Abstract — Deep learning cluster paradigms depend strictly on dense network matrix alignment. This study isolates algorithmic weight propagation variations inside multi-tiered training loops, outlining optimization arrays that mitigate cognitive fade across automated node configurations...";
-                
                 summaryBox.innerText = "A comprehensive scientific overview of deep learning matrix tuning, detailing weight propagation heuristics, vector structural alignments, and training efficiency models within complex parallel processing environments.";
                 
                 const tags = ["Neural Arrays", "Weight Optimization", "Matrix Topologies", "Algorithmic Models"];
@@ -725,33 +794,36 @@
                 domainText.innerText = "General Academic Document";
                 scoreText.innerText = "88% Moderate Risk Match";
                 scoreText.style.backgroundColor = "var(--warning)";
-                
                 bodyPreviewText.innerText = "Abstract — Standard scientific metadata patterns form the foundation for structural documentation cross-referencing. This analytical exploration maps organizational information layouts, classification index structures, and administrative validation frameworks used within research hubs...";
-                
                 summaryBox.innerText = "This document addresses formal research formatting layouts, structural text indexing metrics, and standard administrative categorization workflows deployed within institutional publishing frameworks.";
                 
                 const tags = ["Documentation Structure", "Metadata Models", "Academic Indexing", "Research Frameworks"];
                 tags.forEach(t => keywordBox.innerHTML += `<span class="keyword-tag">${t}</span>`);
             }
 
-            document.getElementById('results-grid').style.display = 'grid';
+            // Route user directly into Authenticity panel after parsing sequence terminates to preview metrics output
+            const tabsList = document.querySelectorAll('.nav-menu li');
+            switchView('authenticity', tabsList[2]);
         }
 
         function generateProfessionalReport() {
-            // Populate the hidden print layout values using active dashboard metrics
+            // Guard clause verification to confirm system metrics strings exist before printing mapping allocations
+            if (document.getElementById('res-filename').innerText === "No File Uploaded") {
+                alert("Please upload an active document element resource file first before requesting PDF compiles!");
+                return;
+            }
+
             document.getElementById('rep-filename').innerText = document.getElementById('res-filename').innerText;
             document.getElementById('rep-filesize').innerText = document.getElementById('res-filesize').innerText;
             document.getElementById('rep-domain').innerText = document.getElementById('res-domain').innerText;
             document.getElementById('rep-score').innerText = document.getElementById('res-score').innerText;
             document.getElementById('rep-summary').innerText = document.getElementById('res-summary').innerText;
             
-            // Map keyword badge strings to report paragraph string targets
             const tagNodes = document.querySelectorAll('#res-keywords .keyword-tag');
             let arrayContainerStrings = [];
             tagNodes.forEach(node => arrayContainerStrings.push(node.innerText));
             document.getElementById('rep-keywords').innerText = arrayContainerStrings.join(', ');
 
-            // Target the invisible layout segment for rendering conversion 
             const sourceElement = document.getElementById('academic-report-template');
             sourceElement.style.display = 'block';
             
@@ -764,7 +836,7 @@
             };
             
             html2pdf().from(sourceElement).set(printingConfigs).save().then(() => {
-                sourceElement.style.display = 'none'; // Hide template immediately back out
+                sourceElement.style.display = 'none';
             });
         }
     </script>
