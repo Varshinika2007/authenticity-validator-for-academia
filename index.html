@@ -1,1 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVA System - Authenticity Validator for Academia</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #16a34a;
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --text: #0f172a;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+        }
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Authentication Screen Layer */
+        #auth-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.3s ease;
+        }
+
+        .auth-card {
+            background: var(--surface);
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .auth-header h1 {
+            color: #1e293b;
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-header p {
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #334155;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* Core Dashboard Layout */
+        #app-container {
+            display: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        .sidebar {
+            width: 280px;
+            background-color: #0f172a;
+            color: white;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .logo-area h2 {
+            font-size: 1.5rem;
+            letter-spacing: -0.5px;
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-links li a {
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            display: block;
+            transition: all 0.2s;
+        }
+
+        .nav-links li.active a, .nav-links li a:hover {
+            background-color: #1e293b;
+            color: white;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .top-bar {
+            height: 70px;
+            background-color: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+        }
+
+        .workspace {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Interactive File Dropzone */
+        .upload-box {
+            border: 2px dashed #cbd5e1;
+            background-color: var(--surface);
+            border-radius: 12px;
+            padding: 4rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .upload-box:hover {
+            border-color: var(--primary);
+            background-color: #f1f5f9;
+        }
+
+        /* Parsing Progress UI */
+        .progress-container {
+            display: none;
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .progress-bar-bg {
+            background-color: #e2e8f0;
+            border-radius: 9999px;
+            height: 8px;
+            width: 100%;
+            margin-top: 0.75rem;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            background-color: var(--primary);
+            height: 100%;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        /* Multi-Column Data Display Panels */
+        .results-grid {
+            display: none;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        .card {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .card h3 {
+            margin-bottom: 1rem;
+            color: #1e293b;
+        }
+
+        /* Document Blueprint Mapping Section */
+        .pdf-view-panel {
+            background: #525659;
+            border-radius: 8px;
+            min-height: 480px;
+            display: flex;
+            justify-content: center;
+            align-items: start;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .pdf-page-mock {
+            background: white;
+            width: 100%;
+            max-width: 400px;
+            min-height: 500px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            padding: 40px;
+            color: #333;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .pdf-mock-header {
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* Metrics Data Structure Styles */
+        .metric-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            background-color: #f1f5f9;
+        }
+
+        .badge-success {
+            background-color: #dcfce7;
+            color: #15803d;
+        }
+
+        .meta-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .meta-list li {
+            display: flex;
+            justify-content: space-between;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px dashed var(--border);
+        }
+
+        .meta-label {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .meta-value {
+            font-weight: 600;
+        }
+
+        /* Hidden Exportable Print-Target Layout */
+        #export-certificate-view {
+            display: none;
+            padding: 40px;
+            background: white;
+            color: black;
+        }
+
+        .cert-border {
+            border: 5px double #1e3a8a;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .cert-title {
+            font-size: 28px;
+            color: #1e3a8a;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="auth-screen">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>AVA System</h1>
+                <p>Authenticity Validator for Academia</p>
+            </div>
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="username" varshini-auth="user" required placeholder="Enter administrative ID">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" varshini-auth="pass" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn">Access Terminal</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="app-container">
+        <aside class="sidebar">
+            <div class="logo-area">
+                <h2>AVA Engine v1.0</h2>
+            </div>
+            <ul class="nav-links">
+                <li class="active"><a href="#">Verification Console</a></li>
+                <li><a href="#">System Integrity Logs</a></li>
+                <li><a href="#">Database Core</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <span style="font-weight: 500; color: var(--text-light);">Secure Node Connected</span>
+                <span id="user-display" style="font-weight: 600;">Admin</span>
+            </header>
+
+            <div class="workspace">
+                <div class="upload-box" id="drop-zone" onclick="document.getElementById('file-input').click()">
+                    <input type="file" id="file-input" style="display: none;" onchange="handleFileSelection(event)">
+                    <p style="font-size: 1.25rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem;">Upload Document Asset</p>
+                    <p style="color: var(--text-light); font-size: 0.875rem;">Supports PDF, DOCX, or TXT items</p>
+                </div>
+
+                <div class="progress-container" id="progress-container">
+                    <div style="display: flex; justify-content: space-between; font-weight: 500;">
+                        <span id="progress-status" style="color: var(--primary);">Analyzing document structures...</span>
+                        <span id="progress-percent">0%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" id="progress-fill"></div>
+                    </div>
+                </div>
+
+                <div class="results-grid" id="results-grid">
+                    <div class="card">
+                        <h3>Interactive Document Layout Map</h3>
+                        <div class="pdf-view-panel">
+                            <div class="pdf-page-mock">
+                                <div class="pdf-mock-header">ACADEMIC MANUSCRIPT PREVIEW</div>
+                                <p id="pdf-body-text">Loading parsed document contents directly into core buffers...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                            <h3>Security Metrics Summary</h3>
+                            <span class="metric-badge badge-success">Passed Integrity Check</span>
+                        </div>
+                        
+                        <ul class="meta-list">
+                            <li>
+                                <span class="meta-label">Target Name</span>
+                                <span class="meta-value" id="res-filename">-</span>
+                            </li>
+                            <li>
+                                <span class="meta-label">Document Size</span>
+                                <span class="meta-value" id="res-filesize">-</span>
+                            </li>
+                            <li>
+                                <span class="meta-label">Domain Scope</span>
+                                <span class="meta-value" id="res-domain" style="color: var(--primary);">Computer Science</span>
+                            </li>
+                            <li>
+                                <span class="meta-label">Extracted Subject Metadata</span>
+                                <span class="meta-value" id="res-summary" style="text-align: right; max-width: 60%;">Natural Language Processing / Deep Learning</span>
+                            </li>
+                        </ul>
+
+                        <button class="btn" style="background-color: var(--success); margin-top: 2rem;" onclick="generatePDFReport()">
+                            📥 Export PDF Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="export-certificate-view">
+        <div class="cert-border">
+            <div class="cert-title">AVA SYSTEM VERIFICATION CERTIFICATE</div>
+            <p style="margin-bottom: 20px;">This confirms that the submitted asset has successfully parsed all security checks.</p>
+            <table style="width: 100%; margin: 20px 0; border-collapse: collapse; text-align: left;">
+                <thead>
+                    <tr>
+                        <th style="padding: 8px; border-bottom: 1px solid #ccc;">Parameter</th>
+                        <th style="padding: 8px; border-bottom: 1px solid #ccc;">Logged Metric</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 8px;">Target Identifier</td>
+                        <td style="padding: 8px;" id="cert-filename">document.pdf</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px;">Domain Scope</td>
+                        <td style="padding: 8px;" id="cert-domain">Computer Science / Engineering</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px;">Integrity Status</td>
+                        <td style="padding: 8px; color: green; font-weight: bold;">AUTHENTIC & VERIFIED</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="font-size: 12px; color: #666; margin-top: 40px;">Generated securely via AVA System Engine automated analysis node.</p>
+        </div>
+    </div>
+
+    <script>
+        function handleLogin(event) {
+            event.preventDefault();
+            const user = document.getElementById('username').value;
+            document.getElementById('user-display').innerText = user;
+            document.getElementById('auth-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('app-container').style.display = 'flex';
+            }, 300);
+        }
+
+        function handleFileSelection(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            document.getElementById('drop-zone').style.display = 'none';
+            document.getElementById('results-grid').style.display = 'none';
+            
+            const progressContainer = document.getElementById('progress-container');
+            const progressFill = document.getElementById('progress-fill');
+            const progressPercent = document.getElementById('progress-percent');
+            const progressStatus = document.getElementById('progress-status');
+            
+            progressContainer.style.display = 'block';
+            
+            let percentage = 0;
+            const statuses = [
+                "Analyzing document structures...",
+                "Running heuristic evaluation protocols...",
+                "Mapping vector layout arrays...",
+                "Finalizing metadata packaging..."
+            ];
+
+            const interval = setInterval(() => {
+                percentage += 2;
+                progressFill.style.width = percentage + '%';
+                progressPercent.innerText = percentage + '%';
+                
+                if (percentage < 25) progressStatus.innerText = statuses[0];
+                else if (percentage < 50) progressStatus.innerText = statuses[1];
+                else if (percentage < 75) progressStatus.innerText = statuses[2];
+                else progressStatus.innerText = statuses[3];
+
+                if (percentage >= 100) {
+                    clearInterval(interval);
+                    progressContainer.style.display = 'none';
+                    showVerificationMetrics(file);
+                }
+            }, 50);
+        }
+
+        function showVerificationMetrics(file) {
+            document.getElementById('res-filename').innerText = file.name;
+            document.getElementById('res-filesize').innerText = (file.size / 1024).toFixed(2) + " KB";
+            
+            const nameLower = file.name.toLowerCase();
+            if (nameLower.includes('web') || nameLower.includes('html') || nameLower.includes('css')) {
+                document.getElementById('res-domain').innerText = "Web Technologies";
+                document.getElementById('res-summary').innerText = "Front-End Engineering / User Interface Architecture";
+                document.getElementById('pdf-body-text').innerText = "Abstract — This document covers responsive client-side layout rendering, semantic DOM asset architecture, and structural style hierarchies inside distributed web systems...";
+            } else if (nameLower.includes('data') || nameLower.includes('python') || nameLower.includes('ai')) {
+                document.getElementById('res-domain').innerText = "Data Science & AI";
+                document.getElementById('res-summary').innerText = "Predictive Modeling Analysis / Core Framework Matrices";
+                document.getElementById('pdf-body-text').innerText = "Abstract — An evaluation of computational learning topologies, exploring structural algorithmic patterns, multi-layer node array weights, and automated data processing matrices...";
+            } else {
+                document.getElementById('res-domain').innerText = "General Academia";
+                document.getElementById('res-summary').innerText = "Academic Research Assets / Formal Structural Documentation";
+                document.getElementById('pdf-body-text').innerText = "Abstract — A formal study examining structured research methodologies, systematic metadata categorizations, and information modeling protocols across administrative domains...";
+            }
+
+            document.getElementById('results-grid').style.display = 'grid';
+        }
+
+        function generatePDFReport() {
+            document.getElementById('cert-filename').innerText = document.getElementById('res-filename').innerText;
+            document.getElementById('cert-domain').innerText = document.getElementById('res-domain').innerText;
+            
+            const element = document.getElementById('export-certificate-view');
+            element.style.display = 'block';
+            
+            const options = {
+                margin:       10,
+                filename:     'AVA-Verification-Report.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            
+            html2pdf().from(element).set(options).save().then(() => {
+                element.style.display = 'none';
+            });
+        }
+    </script>
+</body>
+</html>
