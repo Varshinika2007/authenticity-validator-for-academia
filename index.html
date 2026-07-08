@@ -175,7 +175,6 @@
             color: white;
         }
 
-        /* Distinctive styling for Logout item in navigation */
         .nav-menu li.logout-item a {
             color: #fca5a5;
             border: 1px solid rgba(239, 68, 68, 0.2);
@@ -201,6 +200,14 @@
             align-items: center;
             justify-content: space-between;
             padding: 0 2rem;
+        }
+
+        /* Styling specifically for the core main page title */
+        .header-title-text {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.25px;
         }
 
         .content-scrollbox {
@@ -471,7 +478,7 @@
 
         <main class="main-workspace">
             <header class="header-bar">
-                <span style="font-weight: 600; color: var(--text-muted); font-size: 0.9rem;">🟢 ENCRYPTED NODE CONNECTION ACTIVE</span>
+                <span class="header-title-text">🛡️ AUTHENTICITY VALIDATOR</span>
                 <span id="user-display" style="font-weight: 700; color: var(--primary); padding-right: 2rem;">Operator: Admin</span>
             </header>
 
@@ -654,16 +661,12 @@
     </div>
 
     <script>
-        // Feature tab switcher logic controller routing
         function switchView(viewId, listElement) {
-            // Remove active style from all navigation listings items
             const currentTabs = document.querySelectorAll('.nav-menu li');
             currentTabs.forEach(tab => tab.classList.remove('active'));
             
-            // Add focus class back onto current selected item click target
             listElement.classList.add('active');
 
-            // Toggle viewing target screens loops panels visibility configurations
             const interfaceViews = document.querySelectorAll('.view-section');
             interfaceViews.forEach(v => v.classList.remove('active'));
 
@@ -682,14 +685,11 @@
             }, 300);
         }
 
-        // FEATURE 8 FUNCTIONAL BLOCK: Session Terminate & Cleanup Action Route
         function terminateSession() {
-            // Flush authentication input fields
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
             document.getElementById('file-input').value = '';
             
-            // Revert analysis modules content logs back into zero states placeholders strings
             document.getElementById('pdf-body-text').innerText = "No file currently uploaded. Please mount a target file inside the selector box above to compile data.";
             document.getElementById('res-filename').innerText = "No File Uploaded";
             document.getElementById('res-filesize').innerText = "-";
@@ -700,7 +700,6 @@
             document.getElementById('res-references').innerText = "Awaiting source validation matrix ingestion execution.";
             document.getElementById('res-summary').innerText = "System resting in idling buffer block configuration setup. Run a document verification pass to structure contextual report fields...";
 
-            // Reset active menu back onto first main index element block loop
             const menuItems = document.querySelectorAll('.nav-menu li');
             menuItems.forEach(item => item.classList.remove('active'));
             menuItems[0].classList.add('active');
@@ -709,7 +708,6 @@
             contentViews.forEach(view => view.classList.remove('active'));
             document.getElementById('view-dashboard').classList.add('active');
 
-            // Execute UI translation swaps backwards safely
             document.getElementById('auth-screen').style.display = 'flex';
             setTimeout(() => {
                 document.getElementById('auth-screen').style.opacity = '1';
@@ -751,7 +749,7 @@
                     layoutProgressBox.style.display = 'none';
                     populateVerificationMetrics(uploadedFile);
                 }
-            }, 300); // Steady execution metrics runtime pace simulator 
+            }, 300); 
         }
 
         function populateVerificationMetrics(file) {
@@ -801,13 +799,11 @@
                 tags.forEach(t => keywordBox.innerHTML += `<span class="keyword-tag">${t}</span>`);
             }
 
-            // Route user directly into Authenticity panel after parsing sequence terminates to preview metrics output
             const tabsList = document.querySelectorAll('.nav-menu li');
             switchView('authenticity', tabsList[2]);
         }
 
         function generateProfessionalReport() {
-            // Guard clause verification to confirm system metrics strings exist before printing mapping allocations
             if (document.getElementById('res-filename').innerText === "No File Uploaded") {
                 alert("Please upload an active document element resource file first before requesting PDF compiles!");
                 return;
