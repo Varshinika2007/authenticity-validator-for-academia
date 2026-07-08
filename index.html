@@ -202,7 +202,6 @@
             padding: 0 2rem;
         }
 
-        /* Styling specifically for the core main page title */
         .header-title-text {
             font-size: 1.25rem;
             font-weight: 800;
@@ -320,6 +319,29 @@
             color: #334155;
             font-size: 0.9rem;
             line-height: 1.6;
+            position: relative;
+        }
+
+        /* Copy Button Style configuration */
+        .copy-preview-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-preview-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
         }
 
         .score-row {
@@ -391,7 +413,6 @@
             font-style: italic;
         }
 
-        /* 6. Hidden Institutional PDF Template Structure */
         #academic-report-template {
             display: none;
             padding: 50px;
@@ -526,6 +547,8 @@
                         <div class="card-title">Interactive Document Layout Map Preview</div>
                         <div class="document-viewport">
                             <div class="manuscript-mock-page">
+                                <button class="copy-preview-btn" onclick="copyManuscriptContent()">📋 Copy Content</button>
+                                
                                 <h3 style="text-align: center; margin-bottom: 1.5rem; font-size: 1.1rem; border-bottom: 2px solid #333; padding-bottom: 5px;">MANUSCRIPT PREVIEW CONTENT</h3>
                                 <p id="pdf-body-text" style="text-align: justify; color: var(--text-muted);">No file currently uploaded. Please mount a target file inside the selector box above to compile data.</p>
                             </div>
@@ -589,7 +612,7 @@
                 <div id="view-report" class="view-section">
                     <div class="card">
                         <div class="card-title">📑 Report Generation Console Engine</div>
-                        <p style="color: var(--text-muted); line-height: 1.6;">Convert compiled processing metrics into a publication-quality institutional report certificate document structure layout template format instantly.</p>
+                        <p style="color: var(--text-muted); line-height: 1.6;">Convert compiled processing metrics into a publication-quality institutional report certificate document layout template format instantly.</p>
                         <button class="btn" style="background-color: var(--success); max-width: 320px; display: flex; align-items: center; justify-content: center; gap: 0.5rem;" onclick="generateProfessionalReport()">
                             📥 Export Official Verification Certificate PDF
                         </button>
@@ -617,11 +640,9 @@
             <h1 style="font-size: 24px; color: #1e3a8a; letter-spacing: 0.5px;">AVA SYSTEM VERIFICATION CERTIFICATE</h1>
             <p style="font-size: 11px; color: #64748b; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px;">Official Academic Integrity Metric Report</p>
         </div>
-
         <p style="font-size: 13px; line-height: 1.6; color: #334155; margin-bottom: 20px;">
             This formal validation statement notes that the target file artifact listed below has undergone full validation checks and deep scanning via the AVA structural indexing analysis cluster engine.
         </p>
-
         <div class="report-section-header">1. Document Metadata Inventory</div>
         <table class="report-data-table">
             <tr>
@@ -637,7 +658,6 @@
                 <td id="rep-domain" style="color: #1e3a8a; font-weight: 600;">-</td>
             </tr>
         </table>
-
         <div class="report-section-header">2. Security Metrics and Integrity Signatures</div>
         <table class="report-data-table">
             <tr>
@@ -653,7 +673,6 @@
                 <td id="rep-keywords" style="font-size: 12px; line-height: 1.4;">-</td>
             </tr>
         </table>
-
         <div class="report-section-header">3. Automated Abstractive Summary Insights</div>
         <div id="rep-summary" style="font-size: 12.5px; line-height: 1.6; padding: 15px; background-color: #f8fafc; border-left: 3px solid #1e3a8a; font-style: italic; color: #334155;">
             -
@@ -801,6 +820,26 @@
 
             const tabsList = document.querySelectorAll('.nav-menu li');
             switchView('authenticity', tabsList[2]);
+        }
+
+        // Action function to capture and take preview text strings
+        function copyManuscriptContent() {
+            const currentPreviewText = document.getElementById('pdf-body-text').innerText;
+            
+            navigator.clipboard.writeText(currentPreviewText).then(() => {
+                const copyBtn = document.querySelector('.copy-preview-btn');
+                copyBtn.innerText = "✅ Copied!";
+                copyBtn.style.background = "var(--success)";
+                copyBtn.style.color = "white";
+                
+                setTimeout(() => {
+                    copyBtn.innerText = "📋 Copy Content";
+                    copyBtn.style.background = "#f1f5f9";
+                    copyBtn.style.color = "var(--primary)";
+                }, 2000);
+            }).catch(err => {
+                console.error("Failed to extract structural string values: ", err);
+            });
         }
 
         function generateProfessionalReport() {
